@@ -20,56 +20,22 @@ namespace TcgPlatformApi.Controllers
         [HttpPost("addcards")]
         public async Task<IActionResult> AddCardsAsync([FromBody] List<PlayerCardRequest> requests)
         {
-            try
-            {
-                var result = await _playerCardService.AddCardsAsync(requests);
-                return Ok("Cards added!");
-            }
-            catch (ArgumentException ex) 
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerCardService.AddCardsAsync(requests);
+            return Ok("Cards added!");
         }
 
         [HttpGet("getallcards")]
         public async Task<IActionResult> GetPlayerCardsAsync(int playerId)
         {
-            try
-            {
-                var result = await _playerCardService.GetPlayerCardsAsync(playerId);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-
+            var result = await _playerCardService.GetPlayerCardsAsync(playerId);
+            return Ok(result);
         }
 
         [HttpPost("removecards")]
         public async Task<IActionResult> RemoveCardsAsync([FromBody] List<PlayerCardRequest> requests)
         {
-            try
-            {
-                var result = await _playerCardService.RemoveCardsAsync(requests);
-                return Ok("Cards Removed!");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerCardService.RemoveCardsAsync(requests);
+            return Ok("Cards Removed!");
         }
     }
 }

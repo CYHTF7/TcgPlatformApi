@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TcgPlatformApi.Data;
+using TcgPlatformApi.Middleware;
 using TcgPlatformApi.Services;
 
 namespace TcgPlatformApi
@@ -34,13 +35,10 @@ namespace TcgPlatformApi
             }
 
             app.UseStaticFiles();
-
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.MapControllers();
-
             app.Run();
         }
     }

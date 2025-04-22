@@ -16,22 +16,13 @@ namespace TcgPlatformApi.Controllers
             _profileService = profileService;
         }
 
-        //GET
         [HttpGet("getprofile")]
         public async Task<IActionResult> GetProfile(int id)
         {
-            try
-            {
-                var player = await _profileService.GetProfile(id);
-                return Ok(player);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var player = await _profileService.GetProfile(id);
+            return Ok(player);
         }
 
-        //CREATE
         [HttpPost("createprofile")]
         public async Task<IActionResult> CreateProfile([FromBody] PlayerProfile newProfile)
         {
@@ -39,23 +30,11 @@ namespace TcgPlatformApi.Controllers
             return CreatedAtAction(nameof(GetProfile), new { id = createProfile.Id }, createProfile);
         }
 
-        //UPDATE
         [HttpPost("updateprofile")]
         public async Task<IActionResult> UpdateProfile([FromBody] PlayerProfileRequest updatedProfile) 
         {
-            try
-            {
-                var updated = await _profileService.UpdateProfile(updatedProfile);
-                return Ok(updated);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound("Fail receive profile!");
-            }
+            var updated = await _profileService.UpdateProfile(updatedProfile);
+            return Ok(updated);
         }
     }
 }

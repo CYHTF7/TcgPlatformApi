@@ -20,73 +20,29 @@ namespace TcgPlatformApi.Controllers
         [HttpPost("adddecks")]
         public async Task<IActionResult> AddDeckAsync([FromBody] List<PlayerDeckRequest> requests)
         {
-            try
-            {
-                var result = await _playerDeckService.AddDeckAsync(requests);
-                return Ok("Decks added!");
-            }
-            catch (ArgumentException ex) 
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerDeckService.AddDeckAsync(requests);
+            return Ok("Decks added!");
         }
 
         [HttpPost("removedecks")]
         public async Task<IActionResult> RemoveDeckAsync([FromBody] List<PlayerDeckRemoveRequest> requests) 
         {
-            try
-            {
-                var result = await _playerDeckService.RemoveDeckAsync(requests);
-                return Ok("Decks removed!");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerDeckService.RemoveDeckAsync(requests);
+            return Ok("Decks removed!");
         }
 
         [HttpGet("getdeck")]
         public async Task<IActionResult> GetDeckAsync(int deckId)
         {
-            try
-            {
-                var result = await _playerDeckService.GetDeckAsync(deckId);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerDeckService.GetDeckAsync(deckId);
+            return Ok(result);
         }
 
         [HttpGet("getdecks")]
         public async Task<IActionResult> GetDecksByPlayerIdAsync(int playerId)
         {
-            try
-            {
-                var result = await _playerDeckService.GetDecksByPlayerIdAsync(playerId);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerDeckService.GetDecksByPlayerIdAsync(playerId);
+            return Ok(result);
         }
     }
 }

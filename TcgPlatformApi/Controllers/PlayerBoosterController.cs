@@ -24,56 +24,23 @@ namespace TcgPlatformApi.Controllers
         [HttpPost("addboosters")]
         public async Task<IActionResult> AddBoosterAsync([FromBody] List<PlayerBoosterRequest> requests)
         {
-            try
-            {
-                var result = await _playerBoosterService.AddBoosterAsync(requests);
-                return Ok("Booster added!");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerBoosterService.AddBoosterAsync(requests);
+            return Ok("Booster added!");
         }
 
         [HttpGet("getallboosters")]
         public async Task<IActionResult> GetPlayerBoostersAsync(int playerId)
         {
-            try
-            {
-                var result = await _playerBoosterService.GetPlayerBoostersAsync(playerId);
-                return Ok(result);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerBoosterService.GetPlayerBoostersAsync(playerId);
+            return Ok(result);
         }
 
 
         [HttpPost("removeboosters")]
         public async Task<IActionResult> RemoveBoosterAsync([FromBody] List<PlayerBoosterRequest> requests)
         {
-            try
-            {
-                var result = await _playerBoosterService.RemoveBoosterAsync(requests);
-                return Ok("Booster removed!");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            var result = await _playerBoosterService.RemoveBoosterAsync(requests);
+            return Ok("Booster removed!");
         }
     }
 }
