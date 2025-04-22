@@ -1,0 +1,16 @@
+﻿namespace wowtcgapi.Services
+{
+    public class TestService
+    {
+        public string GenerateMessage(string message)
+        {
+            return $"{message}";
+        }
+<<<<<<< HEAD
+        //main
+=======
+        //123temp
+>>>>>>> temp
+    }
+    //123123
+}
