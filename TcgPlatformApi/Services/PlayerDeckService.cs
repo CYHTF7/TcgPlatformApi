@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using TcgPlatformApi.Data;
+using TcgPlatformApi.Exceptions;
 using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
@@ -18,9 +20,24 @@ namespace TcgPlatformApi.Services
         {
             foreach (var request in requests)
             {
+                bool playerExists = await _context.PlayerProfiles.AnyAsync(p => p.Id == request.PlayerId);
+
+                if (!playerExists)
+                {
+                    throw new AppException(
+                        userMessage: "Invalid playerId",
+                        statusCode: HttpStatusCode.BadRequest,
+                        logMessage: $"[CardService] Invalid playerId: {request.PlayerId}"
+                    );
+                }
+
                 if (string.IsNullOrWhiteSpace(request.DeckName))
                 {
-                    throw new ArgumentException("Empty DeckName!");
+                    throw new AppException(
+                        userMessage: "DeckName must be filled",
+                        statusCode: HttpStatusCode.BadRequest,
+                        logMessage: $"[DeckService] DeckName must be filled: {requests}"
+                    );
                 }
 
                 PlayerDeck playerDeck;
@@ -41,7 +58,11 @@ namespace TcgPlatformApi.Services
 
                     if (playerDeck == null)
                     {
-                        throw new ArgumentNullException("Empty Deck!");
+                        throw new AppException(
+                            userMessage: "Invalid playerDeck",
+                            statusCode: HttpStatusCode.BadRequest,
+                            logMessage: $"[DeckService] Invalid playerDeck: {playerDeck}"
+                        );
                     }
                     playerDeck.DeckName = request.DeckName;
                 }
@@ -94,12 +115,28 @@ namespace TcgPlatformApi.Services
         {
             foreach (var request in requests)
             {
+                bool playerExists = await _context.PlayerProfiles.AnyAsync(p => p.Id == request.PlayerId);
+
+                if (!playerExists)
+                {
+                    throw new AppException(
+                        userMessage: "Invalid playerId",
+                        statusCode: HttpStatusCode.NotFound,
+                        logMessage: $"[CardService] Invalid playerId: {request.PlayerId}"
+                    );
+                }
 
                 var deck = await _context.PlayerDecks.FirstOrDefaultAsync(d => d.Id == request.DeckId && d.PlayerId == request.PlayerId);
 
-                if (deck == null)
+                bool deckExists = await _context.PlayerDecks.AnyAsync(d => d.Id == request.DeckId);
+
+                if (!deckExists)
                 {
-                    throw new InvalidOperationException($"Deck {request.DeckId} not found for player {request.PlayerId}");
+                    throw new AppException(
+                        userMessage: "Invalid deckId",
+                        statusCode: HttpStatusCode.NotFound,
+                        logMessage: $"[DeckService] Invalid deckId: {deck.Id}"
+                    );
                 }
 
                 var cardsToRemove = await _context.PlayerDeckCards.Where(c => c.DeckId == request.DeckId).ToListAsync();
@@ -118,9 +155,15 @@ namespace TcgPlatformApi.Services
 
         public async Task<PlayerDeckRequest> GetDeckAsync(int deckId)
         {
-            if (deckId <= 0)
+            bool deckExists = await _context.PlayerDecks.AnyAsync(d => d.Id == deckId);
+
+            if (!deckExists)
             {
-                throw new ArgumentException("Wrong deck ID!");
+                throw new AppException(
+                    userMessage: "Invalid deckId",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[DeckService] Invalid deckId: {deckId}"
+                );
             }
 
             var deckWithCards = await _context.PlayerDecks
@@ -143,9 +186,15 @@ namespace TcgPlatformApi.Services
 
         public async Task<List<PlayerDeckRequest>> GetDecksByPlayerIdAsync(int playerId)
         {
-            if (playerId <= 0)
+            bool playerExists = await _context.PlayerProfiles.AnyAsync(p => p.Id == playerId);
+
+            if (!playerExists)
             {
-                throw new ArgumentException("Wrong player ID!");
+                throw new AppException(
+                    userMessage: "Invalid playerId",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[CardService] Invalid playerId: {playerId}"
+                );
             }
 
             var decks = await _context.PlayerDecks

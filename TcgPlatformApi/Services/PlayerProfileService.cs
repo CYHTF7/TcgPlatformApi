@@ -1,4 +1,7 @@
-﻿using TcgPlatformApi.Data;
+﻿using System.Net;
+using System.Numerics;
+using TcgPlatformApi.Data;
+using TcgPlatformApi.Exceptions;
 using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
@@ -18,7 +21,11 @@ namespace TcgPlatformApi.Services
 
             if (player == null)
             {
-                throw new KeyNotFoundException("Player profile not found!");
+                throw new AppException(
+                    userMessage: "Player profile not found",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[ProfileService] Player profile not found: {player}"
+                );
             }
 
             return player;
@@ -39,7 +46,11 @@ namespace TcgPlatformApi.Services
 
             if (existingPlayer == null)
             {
-                throw new KeyNotFoundException("Player profile not found");
+                throw new AppException(
+                    userMessage: "Player profile is missing",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[ProfileService] Player profile is missing: {existingPlayer}"
+                );
             }
 
             existingPlayer.Nickname = updatedProfile.Nickname;

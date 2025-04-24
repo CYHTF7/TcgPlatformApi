@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using TcgPlatformApi.Data;
+using TcgPlatformApi.Exceptions;
+using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
@@ -21,36 +24,41 @@ namespace TcgPlatformApi.Services
             }
         }
 
-        [HttpPost("upload")]
-        public async Task<string> UploadAvatar(IFormFile file, int userId)
+        public async Task<string> UploadAvatar(IFormFile file, int playerId)
         {
             if (file == null || file.Length == 0)
             {
-                throw new ArgumentException("Invalid file!");
+                throw new AppException(
+                    userMessage: "Invalid file",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[AvatarService] Invalid file {file.Length}"
+                );
             }
 
-            if (file.ContentType != "image/jpeg" && file.ContentType != "image/jpg")
+            var allovedTypes = new[] { "image/jpeg", "image/pjpeg", "image/jpg" };
+            if (!allovedTypes.Contains(file.ContentType))
             {
-                throw new ArgumentException("File is not .jpg!");
+                throw new AppException(
+                    userMessage: "File must be .jpg",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[AvatarService] File must be .jpg: {file.FileName}"
+                );
             }
 
-            var user = await _context.PlayerProfiles.FindAsync(userId);
+            var user = await _context.PlayerProfiles.FindAsync(playerId);
             if (user == null)
             {
-                throw new KeyNotFoundException("Account not found!");
+                throw new AppException(
+                    userMessage: "Account not found!",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[AvatarService] Account not found for playerId: {playerId}"
+                );
             }
 
-            string fileName = $"{userId}.jpg";
+            string fileName = $"{playerId}.jpg";
             string filePath = Path.Combine(_avatarsFolder, fileName);
 
-            if (!string.IsNullOrEmpty(user.AvatarPath))
-            {
-                string oldFilePath = Path.Combine(_env.WebRootPath, user.AvatarPath.TrimStart('/'));
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-            }
+            DeleteOldAvatar(filePath);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -63,19 +71,38 @@ namespace TcgPlatformApi.Services
             return user.AvatarPath;
         }
 
-        [HttpGet("get/{userId}")]
-        public async Task<byte[]> GetAvatar(int userId)
+        private void DeleteOldAvatar(string filePatch) 
         {
-            var user = await _context.PlayerProfiles.FindAsync(userId);
+            if (string.IsNullOrEmpty(filePatch)) return;
+
+            string oldFilePath = Path.Combine(_env.WebRootPath, filePatch.TrimStart('/'));
+
+            if (System.IO.File.Exists(oldFilePath))
+            {
+                System.IO.File.Delete(oldFilePath);
+            }
+        }
+
+        public async Task<byte[]> GetAvatar(int playerId)
+        {
+            var user = await _context.PlayerProfiles.FindAsync(playerId);
             if (user?.AvatarPath == null)
             {
-                throw new KeyNotFoundException("Avatar not found!");
+                throw new AppException(
+                    userMessage: "Avatar not found",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[AvatarService] Avatar not found for playerId: {playerId}"
+                );
             }
 
             string filePath = Path.Combine(_env.WebRootPath, user.AvatarPath.TrimStart('/'));
             if (!System.IO.File.Exists(filePath))
             {
-                throw new FileNotFoundException("Avatar is missing!");
+                throw new AppException(
+                    userMessage: "Avatar is missing",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[AvatarService] Avatar is missing for playerId: {playerId}"
+                );
             }
 
             return await System.IO.File.ReadAllBytesAsync(filePath);

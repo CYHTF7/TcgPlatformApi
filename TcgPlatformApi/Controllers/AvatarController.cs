@@ -14,26 +14,26 @@ public class AvatarController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file, [FromForm] string userId)
+    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file, [FromForm] string playerId)
     {
-        if (!int.TryParse(userId, out int parsedUserId))
+        if (!int.TryParse(playerId, out int parsedPlayerId))
         {
             return BadRequest("Invalid userId!");
         }
 
-        string avatarUrl = await _avatarService.UploadAvatar(file, parsedUserId);
+        string avatarUrl = await _avatarService.UploadAvatar(file, parsedPlayerId);
         return Ok(new { url = avatarUrl });   
     }
 
-    [HttpGet("get/{userId}")]
-    public async Task<IActionResult> GetAvatar(string userId)
+    [HttpGet("get/{playerId}")]
+    public async Task<IActionResult> GetAvatar(string playerId)
     {
-        if (!int.TryParse(userId, out int parsedUserId))
+        if (!int.TryParse(playerId, out int parsedPlayerId))
         {
             return BadRequest("Invalid userId!");
         }
 
-        byte[] avatarBytes = await _avatarService.GetAvatar(parsedUserId);
+        byte[] avatarBytes = await _avatarService.GetAvatar(parsedPlayerId);
         return File(avatarBytes, "image/jpeg");
     }
 }

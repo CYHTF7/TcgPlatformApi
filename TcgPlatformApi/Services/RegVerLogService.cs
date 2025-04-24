@@ -6,6 +6,9 @@ using TcgPlatformApi.Data;
 using TcgPlatformApi.Models;
 using System.Security.Authentication;
 using System.Security;
+using TcgPlatformApi.Exceptions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System;
 
 namespace TcgPlatformApi.Services
 {
@@ -20,17 +23,19 @@ namespace TcgPlatformApi.Services
 
         public async Task<PlayerProfileRegDTO> Register(RegRequest request)
         {
-            Console.WriteLine($"Incoming request: Nickname={request.Nickname}, Email={request.Email}, Password={request.Password}");
-
             if (await _context.PlayerProfiles.AnyAsync(p => p.Email == request.Email))
             {
-                throw new ArgumentException("Email already in use.");
+                throw new AppException(
+                    userMessage: "Email already in use",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Email already in use: {request.Email}"
+                );
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             //random code (simple variant)
-            string verificationCode = Guid.NewGuid().ToString().Substring(0, 6);
+            string verificationCode = Guid.NewGuid().ToString().Substring(0, 8);
 
             var newProfile = new PlayerProfile
             {
@@ -62,77 +67,81 @@ namespace TcgPlatformApi.Services
                 return false;
             }
 
-            try
+            var smtpClient = new SmtpClient("smtp.gmail.com")
             {
-                //setup
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                Port = 587,
+                Credentials = new NetworkCredential("wowtcgonline@gmail.com", "uoce qpok olkn rgzj"),
+                EnableSsl = true,
+            };
+
+            if (variant == 1)
+            {
+                var mailMessage = new MailMessage
                 {
-                    Port = 587,
-                    Credentials = new NetworkCredential("wowtcgonline@gmail.com", "uoce qpok olkn rgzj"),
-                    EnableSsl = true,
+                    From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
+                    Subject = "WOWTCG - Verification Code",
+                    Body = $"Your Verification Code: {code}",
+                    IsBodyHtml = false,
                 };
+                mailMessage.To.Add(toEmail);
 
-                if (variant == 1)
-                {
-                    var mailMessage = new MailMessage
-                    {
-                        From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
-                        Subject = "WOWTCG - Verification Code",
-                        Body = $"Your Verification Code: {code}",
-                        IsBodyHtml = false,
-                    };
-                    mailMessage.To.Add(toEmail);
+                await smtpClient.SendMailAsync(mailMessage);
 
-                    await smtpClient.SendMailAsync(mailMessage);
-
-                    return true;
-                }
-
-                if (variant == 2)
-                {
-                    var mailMessage = new MailMessage
-                    {
-                        From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
-                        Subject = "WOWTCG - Reset Password Code",
-                        Body = $"Your Reset Password Code: {code}",
-                        IsBodyHtml = false,
-                    };
-                    mailMessage.To.Add(toEmail);
-
-                    await smtpClient.SendMailAsync(mailMessage);
-
-                    return true;
-                }
+                return true;
             }
-            catch (Exception ex)
+
+            if (variant == 2)
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                return false;
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
+                    Subject = "WOWTCG - Reset Password Code",
+                    Body = $"Your Reset Password Code: {code}",
+                    IsBodyHtml = false,
+                };
+                mailMessage.To.Add(toEmail);
+
+                await smtpClient.SendMailAsync(mailMessage);
+
+                return true;
             }
+
             return true;
         }
 
         public async Task<bool> VerifyAccount(VerRequest request)
         {
-            var user = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (player == null)
             {
-                throw new ArgumentException("Account not found!");
+                throw new AppException(
+                    userMessage: "Player profile not found",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[RegVerLogService] Player profile not found: {player}"
+                );
             }
 
-            if (user.IsVerified)
+            if (player.IsVerified)
             {
-                throw new InvalidOperationException("Account is already verified!");
+                throw new AppException(
+                    userMessage: "Account is already verified",
+                    statusCode: HttpStatusCode.Conflict,
+                    logMessage: $"[RegVerLogService] Account is already verified: {player}"
+                );
             }
 
-            if (user.EmailCode != request.EmailCode)
+            if (player.EmailCode != request.EmailCode)
             {
-                throw new ArgumentException("Invalid verification code!");
+                throw new AppException(
+                    userMessage: "Invalid verification code",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Invalid verification code: {request.EmailCode}"
+                );
             }
 
-            user.IsVerified = true;
-            user.EmailCode = "DONE";
+            player.IsVerified = true;
+            player.EmailCode = "DONE";
             await _context.SaveChangesAsync();
 
             return true;
@@ -140,32 +149,44 @@ namespace TcgPlatformApi.Services
 
         public async Task<PlayerProfileLogDTO> Login(LogRequest request)
         {
-            var user = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (player == null)
             {
-                throw new ArgumentException("Invalid email or password");
+                throw new AppException(
+                    userMessage: "Invalid email",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[RegVerLogService] Invalid email: {request.Email}"
+                );
             }
 
-            if (!user.IsVerified)
+            if (!player.IsVerified)
             {
-                throw new VerificationException("Account not verified. Please check your email");
+                throw new AppException(
+                    userMessage: "Account not verified. Please check your email",
+                    statusCode: HttpStatusCode.Forbidden,
+                    logMessage: $"[RegVerLogService] Account not verified: {player}"
+                );
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, player.PasswordHash))
             {
-                throw new AuthenticationException("Invalid email or password");
+                throw new AppException(
+                    userMessage: "Invalid password",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Invalid password: {request.Password}"
+                );
             }
 
             var playerProfileLogDTO = new PlayerProfileLogDTO
             {
-                Id = user.Id,
-                Nickname = user.Nickname,
-                Level = user.Level,
-                Gold = user.Gold,
-                Experience = user.Experience,
-                AvatarPath = user.AvatarPath,
-                BattlesPlayed = user.BattlesPlayed
+                Id = player.Id,
+                Nickname = player.Nickname,
+                Level = player.Level,
+                Gold = player.Gold,
+                Experience = player.Experience,
+                AvatarPath = player.AvatarPath,
+                BattlesPlayed = player.BattlesPlayed
             };
 
             return playerProfileLogDTO;
@@ -173,28 +194,40 @@ namespace TcgPlatformApi.Services
 
         public async Task<bool> ResetPassword(RessPassRequest request)
         {
-            var user = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (player == null)
             {
-                throw new ArgumentException("Invalid data to reset password!");
+                throw new AppException(
+                    userMessage: "Profile not found",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[RegVerLogService] Profile not found: {player.Email}"
+                );
             }
 
-            if (!user.IsVerified)
+            if (!player.IsVerified)
             {
-                throw new VerificationException("Account is not verified!");
+                throw new AppException(
+                    userMessage: "Profile is not verified",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Profile is not verified: {player}"
+                );
             }
 
             string resetCode = Guid.NewGuid().ToString().Substring(0, 6);
 
-            user.PasswordResetCode = resetCode;
+            player.PasswordResetCode = resetCode;
             await _context.SaveChangesAsync();
 
             var emailResult = await SendEmailAsync(request.Email, resetCode, 2);
 
             if (!emailResult)
             {
-                throw new Exception("Failed to send email");
+                throw new AppException(
+                    userMessage: "Failed to send email",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Failed to send email: {emailResult}"
+                );
             }
 
             return true;
@@ -202,21 +235,31 @@ namespace TcgPlatformApi.Services
 
         public async Task<bool> VerifyResetPassword(VerRessPassRequest request)
         {
-            var user = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+            bool playerExists = await _context.PlayerProfiles.AnyAsync(m => m.Email == request.Email);
 
-            if (user == null)
+            if (!playerExists)
             {
-                throw new ArgumentNullException("Invalid data to verify reset password!");
+                throw new AppException(
+                    userMessage: "Invalid playerId",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[CardService] Invalid playerId: {request.Email}"
+                );
             }
 
-            if (user.PasswordResetCode != request.PasswordResetCode)
+            var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            if (player.PasswordResetCode != request.PasswordResetCode)
             {
-                throw new ArgumentNullException("Invalid verification code!");
+                throw new AppException(
+                    userMessage: "Invalid verification code",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[RegVerLogService] Invalid verification code: {request.PasswordResetCode}"
+                );
             }
 
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-            user.PasswordHash = passwordHash;
-            user.PasswordResetCode = "CHANGED";
+            player.PasswordHash = passwordHash;
+            player.PasswordResetCode = "CHANGED";
 
             await _context.SaveChangesAsync();
 

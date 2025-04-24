@@ -1,15 +1,19 @@
 ﻿using System.Net;
+using TcgPlatformApi.Exceptions;
 
 namespace TcgPlatformApi.Middleware
 {
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next)
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
+
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -22,34 +26,21 @@ namespace TcgPlatformApi.Middleware
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception ex)
+        private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             context.Response.ContentType = "application/json";
 
-            switch (ex)
+            if (ex is AppException appEx)
             {
-                case ArgumentException _:
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-
-                case InvalidOperationException _:
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    break;
-
-                case KeyNotFoundException _:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    break;
-
-                case FileNotFoundException _:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    break;
-
-                default:
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    break;
+                _logger.LogError("Error: {LogMessage}", appEx.LogMessage); 
+                context.Response.StatusCode = (int)appEx.StatusCode;
+                await context.Response.WriteAsJsonAsync(new { error = appEx.UserMessage });
+                return;
             }
 
-            return context.Response.WriteAsync(ex.Message);
+            _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            await context.Response.WriteAsJsonAsync(new { error = "Server error" });
         }
     }
 }
