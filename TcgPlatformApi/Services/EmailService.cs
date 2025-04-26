@@ -2,11 +2,20 @@
 using System.Net.Mail;
 using System.Net;
 using TcgPlatformApi.Data;
+using Microsoft.Extensions.Options;
+using TcgPlatformApi.Settings;
 
 namespace TcgPlatformApi.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly SmtpSettings _smtpSettings;
+
+        public EmailService(IOptions<SmtpSettings> smtpSettings)
+        {
+            _smtpSettings = smtpSettings.Value;
+        }
+
         public async Task<bool> SendEmailAsync(string toEmail, string code, int variant)
         {
             if (string.IsNullOrWhiteSpace(toEmail) || string.IsNullOrWhiteSpace(code))
@@ -14,11 +23,11 @@ namespace TcgPlatformApi.Services
                 return false;
             }
 
-            var smtpClient = new SmtpClient("smtp.gmail.com")
+            var smtpClient = new SmtpClient(_smtpSettings.Host)
             {
-                Port = 587,
-                Credentials = new NetworkCredential("wowtcgonline@gmail.com", "uoce qpok olkn rgzj"),
-                EnableSsl = true,
+                Port = _smtpSettings.Port,
+                Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
+                EnableSsl = _smtpSettings.EnableSsl,
             };
 
             if (variant == 1)

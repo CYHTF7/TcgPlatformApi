@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Middleware;
 using TcgPlatformApi.Services;
+using TcgPlatformApi.Settings;
 
 namespace TcgPlatformApi
 {
@@ -15,6 +16,9 @@ namespace TcgPlatformApi
 
                 //for appsettings.json
                 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+                //smtp
+                builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
                 //db string
                 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
