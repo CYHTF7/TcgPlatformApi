@@ -16,7 +16,7 @@ namespace TcgPlatformApi.Services
             _context = context;
         }
 
-        public async Task<bool> AddDeckAsync(List<PlayerDeckRequest> requests)
+        public async Task<bool> AddorUpdateDecksAsync(List<PlayerDeckRequest> requests)
         {
             foreach (var request in requests)
             {
@@ -36,7 +36,7 @@ namespace TcgPlatformApi.Services
                     throw new AppException(
                         userMessage: "DeckName must be filled",
                         statusCode: HttpStatusCode.BadRequest,
-                        logMessage: $"[DeckService] DeckName must be filled: {requests}"
+                        logMessage: $"[DeckService] DeckName must be filled: {request.PlayerId}"
                     );
                 }
 
@@ -48,67 +48,83 @@ namespace TcgPlatformApi.Services
                         DeckName = request.DeckName,
                         PlayerId = request.PlayerId
                     };
+
                     _context.PlayerDecks.Add(playerDeck);
+
                     await _context.SaveChangesAsync();
+
+                    await SyncDeckCardsAsync(playerDeck.Id, request.Cards);
                 }
                 else
                 {
-                    playerDeck = await _context.PlayerDecks
-                        .FirstOrDefaultAsync(pd => pd.Id == request.DeckId && pd.PlayerId == request.PlayerId);
-
-                    if (playerDeck == null)
-                    {
-                        throw new AppException(
-                            userMessage: "Invalid playerDeck",
-                            statusCode: HttpStatusCode.BadRequest,
-                            logMessage: $"[DeckService] Invalid playerDeck: {playerDeck}"
-                        );
-                    }
-                    playerDeck.DeckName = request.DeckName;
-                }
-
-                int deckId = playerDeck.Id;
-
-                var existingDeckCards = await _context.PlayerDeckCards
-                    .Where(pdc => pdc.DeckId == deckId)
-                    .ToListAsync();
-
-                if (request.Cards == null || !request.Cards.Any())
-                {
-                    _context.PlayerDeckCards.RemoveRange(existingDeckCards);
-                }
-                else
-                {
-                    var existingDeckCardsDict = existingDeckCards.ToDictionary(pdc => pdc.CardId);
-
-                    foreach (var card in request.Cards)
-                    {
-                        if (existingDeckCardsDict.TryGetValue(card.CardId, out var existingCard))
-                        {
-                            existingCard.Quantity = card.Quantity;
-                        }
-                        else
-                        {
-                            var newDeckCard = new PlayerDeckCard
-                            {
-                                DeckId = deckId,
-                                CardId = card.CardId,
-                                Quantity = card.Quantity
-                            };
-                            _context.PlayerDeckCards.Add(newDeckCard);
-                        }
-                    }
-
-                    var requestCardIds = request.Cards.Select(c => c.CardId).ToHashSet();
-                    var cardsToRemove = existingDeckCards
-                        .Where(card => !requestCardIds.Contains(card.CardId))
-                        .ToList();
-                    _context.PlayerDeckCards.RemoveRange(cardsToRemove);
-                }
+                    await UpdateDeckAsync(request);
+                }     
             }
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task UpdateDeckAsync(PlayerDeckRequest request) 
+        {
+            var playerDeck = await _context.PlayerDecks
+                .FirstOrDefaultAsync(pd => pd.Id == request.DeckId && pd.PlayerId == request.PlayerId);
+
+            if (playerDeck == null)
+            {
+                throw new AppException(
+                    userMessage: "Invalid playerDeck",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[DeckService] Invalid playerDeck: {request.DeckId}"
+                );
+            }
+
+            playerDeck.DeckName = request.DeckName;
+
+            await SyncDeckCardsAsync(playerDeck.Id, request.Cards);
+        }
+
+        private async Task SyncDeckCardsAsync(int deckId, List<PlayerDeckCardRequest> cards) 
+        {
+            cards = cards?.Where(c => c.CardId > 0 && c.Quantity > 0)
+                .ToList() ?? new List<PlayerDeckCardRequest>();
+
+            var existingDeckCards = await _context.PlayerDeckCards
+                .Where(pdc => pdc.DeckId == deckId)
+                .ToListAsync();
+
+            if (cards == null || !cards.Any())
+            {
+                _context.PlayerDeckCards.RemoveRange(existingDeckCards);
+                return;
+            }
+
+            var existingDeckCardsDict = existingDeckCards.ToDictionary(pdc => pdc.CardId);
+
+            foreach (var card in cards)
+            {
+                if (existingDeckCardsDict.TryGetValue(card.CardId, out var existingCard))
+                {
+                    existingCard.Quantity = card.Quantity;
+                }
+                else
+                {
+                    var newDeckCard = new PlayerDeckCard
+                    {
+                        DeckId = deckId,
+                        CardId = card.CardId,
+                        Quantity = card.Quantity
+                    };
+                    _context.PlayerDeckCards.Add(newDeckCard);
+                }
+            }
+
+            var requestCardIds = cards.Select(c => c.CardId).ToHashSet();
+            var cardsToRemove = existingDeckCards
+                .Where(card => !requestCardIds.Contains(card.CardId))
+                .ToList();
+
+            _context.PlayerDeckCards.RemoveRange(cardsToRemove);
         }
 
         public async Task<bool> RemoveDeckAsync(List<PlayerDeckRemoveRequest> requests)

@@ -17,10 +17,10 @@ namespace TcgPlatformApi.Controllers
             _playerDeckService = playerDeckService;
         }
 
-        [HttpPost("adddecks")]
-        public async Task<IActionResult> AddDeckAsync([FromBody] List<PlayerDeckRequest> requests)
+        [HttpPost("addorupdatedecks")]
+        public async Task<IActionResult> AddorUpdateDecksAsync([FromBody] List<PlayerDeckRequest> requests)
         {
-            var result = await _playerDeckService.AddDeckAsync(requests);
+            var result = await _playerDeckService.AddorUpdateDecksAsync(requests);
             return Ok("Decks added!");
         }
 
