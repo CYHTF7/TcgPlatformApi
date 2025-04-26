@@ -27,21 +27,6 @@ namespace TcgPlatformApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("email")]
-        public async Task<IActionResult> SendEmailAsync(string toEmail, string code, int variant)
-        {
-            bool result = await _regVerLogService.SendEmailAsync(toEmail, code, variant);
-
-            if (result)
-            {
-                return Ok("Email sent successfully.");
-            }
-            else
-            {
-                return BadRequest("Failed to send email.");
-            }
-        }
-
         [HttpPost("verify")]
         public async Task<IActionResult> VerifyAccount([FromBody] VerRequest request)
         {

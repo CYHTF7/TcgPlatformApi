@@ -9,37 +9,47 @@ namespace TcgPlatformApi
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            //for appsettings.json
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            //db string
-            builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IPlayerProfileService, PlayerProfileService>();
-            builder.Services.AddScoped<IRegVerLogService, RegVerLogService>();
-            builder.Services.AddScoped<IAvatarService, AvatarService>();
-            builder.Services.AddScoped<IPlayerBoosterService, PlayerBoosterService>();
-            builder.Services.AddScoped<IPlayerCardService, PlayerCardService>();
-            builder.Services.AddScoped<IPlayerDeckService, PlayerDeckService>();
-            var app = builder.Build();
-
-            if (app.Environment.IsDevelopment())
+            try
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                var builder = WebApplication.CreateBuilder(args);
 
-            app.UseStaticFiles();
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
-            app.UseMiddleware<ExceptionMiddleware>();
-            app.MapControllers();
-            app.Run();
+                //for appsettings.json
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+                //db string
+                builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
+                builder.Services.AddControllers();
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen();
+                builder.Services.AddScoped<IPlayerProfileService, PlayerProfileService>();
+                builder.Services.AddScoped<IRegVerLogService, RegVerLogService>();
+                builder.Services.AddScoped<IAvatarService, AvatarService>();
+                builder.Services.AddScoped<IPlayerBoosterService, PlayerBoosterService>();
+                builder.Services.AddScoped<IPlayerCardService, PlayerCardService>();
+                builder.Services.AddScoped<IPlayerDeckService, PlayerDeckService>();
+                builder.Services.AddScoped<IEmailService, EmailService>();
+                var app = builder.Build();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
+
+                app.UseStaticFiles();
+                app.UseHttpsRedirection();
+                app.UseAuthorization();
+                app.UseMiddleware<ExceptionMiddleware>();
+                app.MapControllers();
+                app.Run();
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Application failed to start: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                throw;
+            }   
         }
     }
 }

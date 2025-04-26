@@ -15,10 +15,12 @@ namespace TcgPlatformApi.Services
     public class RegVerLogService : IRegVerLogService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public RegVerLogService(AppDbContext context)
+        public RegVerLogService(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<PlayerProfileRegDTO> Register(RegRequest request)
@@ -50,7 +52,7 @@ namespace TcgPlatformApi.Services
             _context.PlayerProfiles.Add(newProfile);
             await _context.SaveChangesAsync();
 
-            await SendEmailAsync(request.Email, verificationCode, 1);
+            await _emailService.SendEmailAsync(request.Email, verificationCode, 1);
 
             return new PlayerProfileRegDTO
             {
@@ -58,55 +60,6 @@ namespace TcgPlatformApi.Services
                 Nickname = newProfile.Nickname,
                 Email = newProfile.Email
             };
-        }
-
-        public async Task<bool> SendEmailAsync(string toEmail, string code, int variant)
-        {
-            if (string.IsNullOrWhiteSpace(toEmail) || string.IsNullOrWhiteSpace(code))
-            {
-                return false;
-            }
-
-            var smtpClient = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                Credentials = new NetworkCredential("wowtcgonline@gmail.com", "uoce qpok olkn rgzj"),
-                EnableSsl = true,
-            };
-
-            if (variant == 1)
-            {
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
-                    Subject = "WOWTCG - Verification Code",
-                    Body = $"Your Verification Code: {code}",
-                    IsBodyHtml = false,
-                };
-                mailMessage.To.Add(toEmail);
-
-                await smtpClient.SendMailAsync(mailMessage);
-
-                return true;
-            }
-
-            if (variant == 2)
-            {
-                var mailMessage = new MailMessage
-                {
-                    From = new MailAddress("wowtcgonline@gmail.com", "WOWTCGONLINE"),
-                    Subject = "WOWTCG - Reset Password Code",
-                    Body = $"Your Reset Password Code: {code}",
-                    IsBodyHtml = false,
-                };
-                mailMessage.To.Add(toEmail);
-
-                await smtpClient.SendMailAsync(mailMessage);
-
-                return true;
-            }
-
-            return true;
         }
 
         public async Task<bool> VerifyAccount(VerRequest request)
@@ -219,7 +172,7 @@ namespace TcgPlatformApi.Services
             player.PasswordResetCode = resetCode;
             await _context.SaveChangesAsync();
 
-            var emailResult = await SendEmailAsync(request.Email, resetCode, 2);
+            var emailResult = await _emailService.SendEmailAsync(request.Email, resetCode, 2);
 
             if (!emailResult)
             {
