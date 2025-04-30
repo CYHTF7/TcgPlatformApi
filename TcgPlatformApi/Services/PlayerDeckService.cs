@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
@@ -40,10 +39,10 @@ namespace TcgPlatformApi.Services
                     );
                 }
 
-                PlayerDeck playerDeck;
+                Deck playerDeck;
                 if (request.DeckId == 0)
                 {
-                    playerDeck = new PlayerDeck
+                    playerDeck = new Deck
                     {
                         DeckName = request.DeckName,
                         PlayerId = request.PlayerId
@@ -84,10 +83,10 @@ namespace TcgPlatformApi.Services
             await SyncDeckCardsAsync(playerDeck.Id, request.Cards);
         }
 
-        private async Task SyncDeckCardsAsync(int deckId, List<PlayerDeckCardRequest> cards) 
+        private async Task SyncDeckCardsAsync(int deckId, List<PlayerDeckCardDTO> cards) 
         {
             cards = cards?.Where(c => c.CardId > 0 && c.Quantity > 0)
-                .ToList() ?? new List<PlayerDeckCardRequest>();
+                .ToList() ?? new List<PlayerDeckCardDTO>();
 
             var existingDeckCards = await _context.PlayerDeckCards
                 .Where(pdc => pdc.DeckId == deckId)
@@ -109,7 +108,7 @@ namespace TcgPlatformApi.Services
                 }
                 else
                 {
-                    var newDeckCard = new PlayerDeckCard
+                    var newDeckCard = new DeckCard
                     {
                         DeckId = deckId,
                         CardId = card.CardId,
@@ -189,7 +188,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardRequest
+                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardDTO
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity
@@ -220,7 +219,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardRequest
+                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardDTO
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity

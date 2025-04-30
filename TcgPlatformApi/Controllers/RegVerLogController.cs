@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TcgPlatformApi.Models;
-using TcgPlatformApi.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
 using TcgPlatformApi.Services;
-using System.Security.Authentication;
-using System.Security;
 
 namespace TcgPlatformApi.Controllers
 {
@@ -35,7 +30,7 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LogRequest request)
+        public async Task<IActionResult> Login([FromBody] PlayerProfileLogRequest request)
         {
             var result = await _regVerLogService.Login(request);
             return Ok(result);

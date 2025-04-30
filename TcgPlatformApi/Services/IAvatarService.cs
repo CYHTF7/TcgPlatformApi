@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace TcgPlatformApi.Services
+﻿namespace TcgPlatformApi.Services
 {
     public interface IAvatarService
     {
-        Task<string> UploadAvatar(IFormFile file, int userId);
-        Task<byte[]> GetAvatar(int userId);
+        Task<string> UploadAvatar(IFormFile file, int playerId);
+        Task<byte[]> GetAvatar(int playerId);
     }
 }

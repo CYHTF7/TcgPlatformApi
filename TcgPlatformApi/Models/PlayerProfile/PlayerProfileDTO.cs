@@ -1,6 +1,6 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class PlayerProfileLogDTO
+    public class PlayerProfileDTO
     {
         public int Id { get; set; }
         public string Nickname { get; set; }
@@ -10,5 +10,8 @@
         public string AvatarPath { get; set; }
         public int BattlesPlayed { get; set; }
 
+        //jwt
+        public string RefreshTokenHash { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TcgPlatformApi.Models;
+﻿using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {

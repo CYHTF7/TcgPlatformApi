@@ -1,29 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Models;
-using System.Security.Authentication;
-using System.Security;
 using TcgPlatformApi.Exceptions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
+using TcgPlatformApi.Settings;
+using Microsoft.Extensions.Options;
 
 namespace TcgPlatformApi.Services
 {
     public class RegVerLogService : IRegVerLogService
     {
         private readonly AppDbContext _context;
+        private readonly JwtSettings _jwtSettings;
         private readonly IEmailService _emailService;
+        private readonly ITokenService _tokenService;
 
-        public RegVerLogService(AppDbContext context, IEmailService emailService)
+        public RegVerLogService(AppDbContext context, IEmailService emailService, ITokenService tokenService, IOptions<JwtSettings> jwtSettings)
         {
             _context = context;
             _emailService = emailService;
+            _tokenService = tokenService;
+            _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<PlayerProfileRegDTO> Register(RegRequest request)
+        public async Task<PlayerProfileRegResponse> Register(RegRequest request)
         {
             if (await _context.PlayerProfiles.AnyAsync(p => p.Email == request.Email))
             {
@@ -54,7 +54,7 @@ namespace TcgPlatformApi.Services
 
             await _emailService.SendEmailAsync(request.Email, verificationCode, 1);
 
-            return new PlayerProfileRegDTO
+            return new PlayerProfileRegResponse
             {
                 Id = newProfile.Id,
                 Nickname = newProfile.Nickname,
@@ -100,7 +100,7 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
-        public async Task<PlayerProfileLogDTO> Login(LogRequest request)
+        public async Task<PlayerProfileTokenLogResponse> Login(PlayerProfileLogRequest request)
         {
             var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -131,7 +131,17 @@ namespace TcgPlatformApi.Services
                 );
             }
 
-            var playerProfileLogDTO = new PlayerProfileLogDTO
+            var accessToken = _tokenService.GenerateAccessToken(player.Id, player.Nickname);
+
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            var refreshTokenHash = BCrypt.Net.BCrypt.HashPassword(refreshToken);
+
+            player.RefreshTokenHash = refreshTokenHash;
+            player.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays);
+
+            await _context.SaveChangesAsync();
+
+            var playerProfile = new PlayerProfileDTO
             {
                 Id = player.Id,
                 Nickname = player.Nickname,
@@ -139,11 +149,18 @@ namespace TcgPlatformApi.Services
                 Gold = player.Gold,
                 Experience = player.Experience,
                 AvatarPath = player.AvatarPath,
-                BattlesPlayed = player.BattlesPlayed
+                BattlesPlayed = player.BattlesPlayed,
+                RefreshTokenHash = refreshTokenHash,
+                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays)
             };
 
-            return playerProfileLogDTO;
-        }
+            return new PlayerProfileTokenLogResponse
+            {
+                PlayerProfile = playerProfile,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+        } 
 
         public async Task<bool> ResetPassword(RessPassRequest request)
         {
@@ -213,6 +230,9 @@ namespace TcgPlatformApi.Services
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
             player.PasswordHash = passwordHash;
             player.PasswordResetCode = "CHANGED";
+
+            player.RefreshTokenHash = null;
+            player.RefreshTokenExpiryTime = null;
 
             await _context.SaveChangesAsync();
 

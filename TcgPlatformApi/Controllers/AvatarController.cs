@@ -1,40 +1,53 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TcgPlatformApi.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TcgPlatformApi.Services;
+using TcgPlatformApi.Swagger;
 
-[ApiController]
-[Route("api/avatar")]
-public class AvatarController : ControllerBase
+
+namespace TcgPlatformApi.Controllers 
 {
-    private readonly IAvatarService _avatarService;
-
-    public AvatarController(IAvatarService avatarService)
+    [Authorize]
+    [ApiController]
+    [Route("api/avatar")]
+    public class AvatarController : ControllerBase
     {
-        _avatarService = avatarService;
-    }
+        private readonly IAvatarService _avatarService;
 
-    [HttpPost("upload")]
-    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file, [FromForm] string playerId)
-    {
-        if (!int.TryParse(playerId, out int parsedPlayerId))
+        public AvatarController(IAvatarService avatarService)
         {
-            return BadRequest("Invalid userId!");
+            _avatarService = avatarService;
         }
 
-        string avatarUrl = await _avatarService.UploadAvatar(file, parsedPlayerId);
-        return Ok(new { url = avatarUrl });   
-    }
-
-    [HttpGet("get/{playerId}")]
-    public async Task<IActionResult> GetAvatar(string playerId)
-    {
-        if (!int.TryParse(playerId, out int parsedPlayerId))
+        [HttpPost("uploadavatar")]
+        [SwaggerUploadFile]
+        public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
         {
-            return BadRequest("Invalid userId!");
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            string avatarUrl = await _avatarService.UploadAvatar(file, parsedPlayerId);
+            return Ok(new { url = avatarUrl });
         }
 
-        byte[] avatarBytes = await _avatarService.GetAvatar(parsedPlayerId);
-        return File(avatarBytes, "image/jpeg");
+        [HttpGet("getavatar")]
+        public async Task<IActionResult> GetAvatar()
+        {
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            byte[] avatarBytes = await _avatarService.GetAvatar(parsedPlayerId);
+            return File(avatarBytes, "image/jpeg");
+        }
     }
 }
+
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
@@ -45,7 +44,7 @@ namespace TcgPlatformApi.Services
 
                 if (playerCard == null)
                 {
-                    playerCard = new PlayerCard
+                    playerCard = new Card
                     {
                         PlayerId = request.PlayerId,
                         CardId = request.CardId,
@@ -63,7 +62,7 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
-        public async Task<List<PlayerCard>> GetPlayerCardsAsync(int playerId)
+        public async Task<List<Card>> GetPlayerCardsAsync(int playerId)
         {
             bool playerExists = await _context.PlayerProfiles.AnyAsync(p => p.Id == playerId);
 

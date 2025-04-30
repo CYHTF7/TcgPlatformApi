@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TcgPlatformApi.Data;
 using TcgPlatformApi.Models;
 using TcgPlatformApi.Services;
 
@@ -31,7 +30,7 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpPost("updateprofile")]
-        public async Task<IActionResult> UpdateProfile([FromBody] PlayerProfileRequest updatedProfile) 
+        public async Task<IActionResult> UpdateProfile([FromBody] PlayerProfileDTO updatedProfile) 
         {
             var updated = await _profileService.UpdateProfile(updatedProfile);
             return Ok(updated);

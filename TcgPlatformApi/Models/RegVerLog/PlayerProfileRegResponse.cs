@@ -1,6 +1,6 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class PlayerProfileRegDTO
+    public class PlayerProfileRegResponse
     {
         public int Id { get; set; }
         public string Nickname { get; set; }

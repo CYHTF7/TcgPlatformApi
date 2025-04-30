@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TcgPlatformApi.Data;
 using TcgPlatformApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TcgPlatformApi.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using TcgPlatformApi.Services;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace TcgPlatformApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PlayerBoosterController : ControllerBase
@@ -22,24 +19,59 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpPost("addboosters")]
-        public async Task<IActionResult> AddBoosterAsync([FromBody] List<PlayerBoosterRequest> requests)
+        public async Task<IActionResult> AddBoosterAsync([FromBody] List<BoosterRequest> requests)
         {
-            var result = await _playerBoosterService.AddBoosterAsync(requests);
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            var playerRequests = requests.Select(r => new PlayerBoosterRequest
+            {
+                PlayerId = parsedPlayerId,
+                BoosterId = r.BoosterId,
+                Quantity = r.Quantity
+            }).ToList();
+
+            var result = await _playerBoosterService.AddBoosterAsync(playerRequests);
             return Ok("Booster added!");
         }
 
         [HttpGet("getallboosters")]
-        public async Task<IActionResult> GetPlayerBoostersAsync(int playerId)
+        public async Task<IActionResult> GetPlayerBoostersAsync()
         {
-            var result = await _playerBoosterService.GetPlayerBoostersAsync(playerId);
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            var result = await _playerBoosterService.GetPlayerBoostersAsync(parsedPlayerId);
             return Ok(result);
         }
 
 
         [HttpPost("removeboosters")]
-        public async Task<IActionResult> RemoveBoosterAsync([FromBody] List<PlayerBoosterRequest> requests)
+        public async Task<IActionResult> RemoveBoosterAsync([FromBody] List<BoosterRequest> requests)
         {
-            var result = await _playerBoosterService.RemoveBoosterAsync(requests);
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            var playerRequests = requests.Select(r => new PlayerBoosterRequest
+            {
+                PlayerId = parsedPlayerId,
+                BoosterId = r.BoosterId,
+                Quantity = r.Quantity
+            }).ToList();
+
+            var result = await _playerBoosterService.RemoveBoosterAsync(playerRequests);
             return Ok("Booster removed!");
         }
     }

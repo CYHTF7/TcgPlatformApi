@@ -1,6 +1,6 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class PlayerCard
+    public class Card
     {
         public int Id { get; set; }
         public int PlayerId { get; set; }

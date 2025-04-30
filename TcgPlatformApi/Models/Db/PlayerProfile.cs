@@ -16,7 +16,7 @@ namespace TcgPlatformApi.Models
         [MaxLength(256)]
         public string Email { get; set; }
 
-        public string EmailCode { get; set; } 
+        public string EmailCode { get; set; }
 
         [Required]
         [MaxLength(256)]
@@ -30,6 +30,10 @@ namespace TcgPlatformApi.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsVerified { get; set; }
+
+        //jwt
+        public string? RefreshTokenHash { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         //statistics
         public int BattlesPlayed { get; set; }

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net.Mail;
+﻿using System.Net.Mail;
 using System.Net;
-using TcgPlatformApi.Data;
 using Microsoft.Extensions.Options;
 using TcgPlatformApi.Settings;
 

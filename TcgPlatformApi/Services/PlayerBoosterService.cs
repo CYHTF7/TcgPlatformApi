@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Linq.Expressions;
 using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
 using TcgPlatformApi.Models;
+
 
 namespace TcgPlatformApi.Services
 {
@@ -37,7 +37,7 @@ namespace TcgPlatformApi.Services
 
                 if (playerBooster == null)
                 {
-                    playerBooster = new PlayerBooster
+                    playerBooster = new Booster
                     {
                         PlayerId = request.PlayerId,
                         BoosterId = request.BoosterId,
@@ -56,7 +56,7 @@ namespace TcgPlatformApi.Services
         }
 
         [HttpGet("getallboosters")]
-        public async Task<List<PlayerBooster>> GetPlayerBoostersAsync(int playerId)
+        public async Task<List<Booster>> GetPlayerBoostersAsync(int playerId)
         {
             if (playerId <= 0)
             {

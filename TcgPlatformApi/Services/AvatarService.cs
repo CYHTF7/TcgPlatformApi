@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
-using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
@@ -45,8 +43,8 @@ namespace TcgPlatformApi.Services
                 );
             }
 
-            var user = await _context.PlayerProfiles.FindAsync(playerId);
-            if (user == null)
+            var player = await _context.PlayerProfiles.FindAsync(playerId);
+            if (player == null)
             {
                 throw new AppException(
                     userMessage: "Account not found!",
@@ -65,10 +63,10 @@ namespace TcgPlatformApi.Services
                 await file.CopyToAsync(stream);
             }
 
-            user.AvatarPath = $"/avatars/{fileName}";
+            player.AvatarPath = $"/avatars/{fileName}";
             await _context.SaveChangesAsync();
 
-            return user.AvatarPath;
+            return player.AvatarPath;
         }
 
         private void DeleteOldAvatar(string filePatch) 
@@ -85,8 +83,8 @@ namespace TcgPlatformApi.Services
 
         public async Task<byte[]> GetAvatar(int playerId)
         {
-            var user = await _context.PlayerProfiles.FindAsync(playerId);
-            if (user?.AvatarPath == null)
+            var player = await _context.PlayerProfiles.FindAsync(playerId);
+            if (player?.AvatarPath == null)
             {
                 throw new AppException(
                     userMessage: "Avatar not found",
@@ -95,7 +93,10 @@ namespace TcgPlatformApi.Services
                 );
             }
 
-            string filePath = Path.Combine(_env.WebRootPath, user.AvatarPath.TrimStart('/'));
+            string filePath = Path.Combine(_env.WebRootPath, player.AvatarPath.TrimStart('/'));
+
+            Console.WriteLine($"Resolved file path: {filePath}");
+
             if (!System.IO.File.Exists(filePath))
             {
                 throw new AppException(

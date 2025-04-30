@@ -5,11 +5,11 @@
         public int DeckId { get; set; }
         public string DeckName { get; set; }
         public int PlayerId { get; set; }
-        public List<PlayerDeckCardRequest> Cards { get; set; }
+        public List<PlayerDeckCardDTO> Cards { get; set; }
 
         public PlayerDeckRequest()
         {
-            Cards = new List<PlayerDeckCardRequest>();
+            Cards = new List<PlayerDeckCardDTO>();
         }
     }
 }

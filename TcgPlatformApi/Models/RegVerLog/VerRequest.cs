@@ -1,8 +1,8 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class LogRequest
+    public class VerRequest
     {
+        public string EmailCode { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
     }
 }

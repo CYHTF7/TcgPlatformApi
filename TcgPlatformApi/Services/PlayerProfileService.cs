@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Numerics;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
 using TcgPlatformApi.Models;
@@ -40,7 +39,7 @@ namespace TcgPlatformApi.Services
             return newProfile;
         }
 
-        public async Task<PlayerProfile> UpdateProfile(PlayerProfileRequest updatedProfile) 
+        public async Task<PlayerProfile> UpdateProfile(PlayerProfileDTO updatedProfile) 
         {
             var existingPlayer = await _context.PlayerProfiles.FindAsync(updatedProfile.Id);
 

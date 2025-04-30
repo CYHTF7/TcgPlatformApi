@@ -1,8 +1,8 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class PlayerDeckRemoveRequest
+    public class RefreshTokenRequest
     {
-        public int DeckId { get; set; }
         public int PlayerId { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

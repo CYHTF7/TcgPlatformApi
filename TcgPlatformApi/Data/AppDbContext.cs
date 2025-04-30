@@ -7,14 +7,14 @@ namespace TcgPlatformApi.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> dbContextOptions) : base(dbContextOptions) { }
         public DbSet<PlayerProfile> PlayerProfiles { get; set; }
-        public DbSet<PlayerCard> PlayerCards { get; set; }
-        public DbSet<PlayerBooster> PlayerBoosters { get; set; }
-        public DbSet<PlayerDeck> PlayerDecks { get; set; }
-        public DbSet<PlayerDeckCard> PlayerDeckCards { get; set; }
+        public DbSet<Card> PlayerCards { get; set; }
+        public DbSet<Booster> PlayerBoosters { get; set; }
+        public DbSet<Deck> PlayerDecks { get; set; }
+        public DbSet<DeckCard> PlayerDeckCards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PlayerDeck>()
+            modelBuilder.Entity<Deck>()
                 .HasMany(d => d.PlayerDeckCards)
                 .WithOne(c => c.Deck)
                 .HasForeignKey(c => c.DeckId);
