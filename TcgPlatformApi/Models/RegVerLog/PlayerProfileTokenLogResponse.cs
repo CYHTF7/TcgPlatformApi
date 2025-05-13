@@ -2,8 +2,8 @@
 {
     public class PlayerProfileTokenLogResponse
     {
-        public PlayerProfileDTO PlayerProfile { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public required PlayerProfileDTO PlayerProfile { get; set; }
+        public required string AccessToken { get; set; }
+        public required string RefreshToken { get; set; }
     }
 }

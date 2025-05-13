@@ -5,11 +5,11 @@ using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
-    public class PlayerProfileService : IPlayerProfileService
+    public class ProfileService : IProfileService
     {
         private readonly AppDbContext _context;
 
-        public PlayerProfileService(AppDbContext context)
+        public ProfileService(AppDbContext context)
         {
             _context = context;
         }

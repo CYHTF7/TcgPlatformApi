@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcgPlatformApi", "TcgPlatformApi\TcgPlatformApi.csproj", "{52BD8951-3E66-493C-97B1-AF09203CF2D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcgPlatformApi.Tests", "TcgPlatformApi.Tests\TcgPlatformApi.Tests.csproj", "{FB66B53A-7366-4830-BC61-31A74A820B8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{52BD8951-3E66-493C-97B1-AF09203CF2D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52BD8951-3E66-493C-97B1-AF09203CF2D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52BD8951-3E66-493C-97B1-AF09203CF2D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB66B53A-7366-4830-BC61-31A74A820B8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB66B53A-7366-4830-BC61-31A74A820B8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB66B53A-7366-4830-BC61-31A74A820B8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB66B53A-7366-4830-BC61-31A74A820B8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

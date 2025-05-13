@@ -6,11 +6,11 @@ using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
-    public class PlayerDeckService : IPlayerDeckService
+    public class DeckService : IDeckService
     {
         private readonly AppDbContext _context;
 
-        public PlayerDeckService(AppDbContext context)
+        public DeckService(AppDbContext context)
         {
             _context = context;
         }
@@ -83,10 +83,10 @@ namespace TcgPlatformApi.Services
             await SyncDeckCardsAsync(playerDeck.Id, request.Cards);
         }
 
-        private async Task SyncDeckCardsAsync(int deckId, List<PlayerDeckCardDTO> cards) 
+        private async Task SyncDeckCardsAsync(int deckId, List<CardInDeck> cards) 
         {
             cards = cards?.Where(c => c.CardId > 0 && c.Quantity > 0)
-                .ToList() ?? new List<PlayerDeckCardDTO>();
+                .ToList() ?? new List<CardInDeck>();
 
             var existingDeckCards = await _context.PlayerDeckCards
                 .Where(pdc => pdc.DeckId == deckId)
@@ -150,7 +150,7 @@ namespace TcgPlatformApi.Services
                     throw new AppException(
                         userMessage: "Invalid deckId",
                         statusCode: HttpStatusCode.NotFound,
-                        logMessage: $"[DeckService] Invalid deckId: {deck.Id}"
+                        logMessage: $"[DeckService] Invalid deckId: {request.DeckId}"
                     );
                 }
 
@@ -161,7 +161,7 @@ namespace TcgPlatformApi.Services
                     _context.PlayerDeckCards.RemoveRange(cardsToRemove);
                 }
 
-                _context.PlayerDecks.Remove(deck);
+                _context.PlayerDecks.Remove(deck!);
             }
 
             await _context.SaveChangesAsync();
@@ -188,7 +188,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardDTO
+                    Cards = d.PlayerDeckCards.Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity
@@ -196,7 +196,7 @@ namespace TcgPlatformApi.Services
                 })
                 .FirstOrDefaultAsync();
 
-            return deckWithCards;
+            return deckWithCards!;
         }
 
         public async Task<List<PlayerDeckRequest>> GetDecksByPlayerIdAsync(int playerId)
@@ -219,7 +219,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new PlayerDeckCardDTO
+                    Cards = d.PlayerDeckCards.Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity

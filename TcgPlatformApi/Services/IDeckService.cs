@@ -2,7 +2,7 @@
 
 namespace TcgPlatformApi.Services
 {
-    public interface IPlayerDeckService
+    public interface IDeckService
     {
         Task<bool> AddorUpdateDecksAsync(List<PlayerDeckRequest> requests);
         Task<bool> RemoveDeckAsync(List<PlayerDeckRemoveRequest> request);

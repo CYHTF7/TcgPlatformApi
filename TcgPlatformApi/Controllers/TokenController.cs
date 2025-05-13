@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TcgPlatformApi.Models;
 using TcgPlatformApi.Services;
+
 namespace TcgPlatformApi.Controllers
 {
     [Authorize]

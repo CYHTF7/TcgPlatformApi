@@ -11,7 +11,7 @@ namespace TcgPlatformApi.Exceptions
         public AppException(
             string userMessage,
             HttpStatusCode statusCode = HttpStatusCode.BadRequest,
-            string logMessage = null)
+            string logMessage = "error")
         {
             UserMessage = userMessage;
             StatusCode = statusCode;

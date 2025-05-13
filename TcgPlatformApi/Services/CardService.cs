@@ -6,11 +6,11 @@ using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
-    public class PlayerCardService : IPlayerCardService
+    public class CardService : ICardService
     {
         private readonly AppDbContext _context;
 
-        public PlayerCardService(AppDbContext context)
+        public CardService(AppDbContext context)
         {
             _context = context;
         }

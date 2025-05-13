@@ -2,7 +2,7 @@
 
 namespace TcgPlatformApi.Services
 {
-    public interface IPlayerProfileService
+    public interface IProfileService
     {
         Task<PlayerProfile> GetProfile(int id);
 

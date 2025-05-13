@@ -9,11 +9,11 @@ using TcgPlatformApi.Models;
 
 namespace TcgPlatformApi.Services
 {
-    public class PlayerBoosterService : IPlayerBoosterService
+    public class BoosterService : IBoosterService
     {
         private readonly AppDbContext _context;
 
-        public PlayerBoosterService(AppDbContext context)
+        public BoosterService(AppDbContext context)
         {
             _context = context;
         }

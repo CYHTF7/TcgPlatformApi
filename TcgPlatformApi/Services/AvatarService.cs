@@ -29,7 +29,7 @@ namespace TcgPlatformApi.Services
                 throw new AppException(
                     userMessage: "Invalid file",
                     statusCode: HttpStatusCode.BadRequest,
-                    logMessage: $"[AvatarService] Invalid file {file.Length}"
+                    logMessage: $"[AvatarService] Invalid file for {playerId}"
                 );
             }
 

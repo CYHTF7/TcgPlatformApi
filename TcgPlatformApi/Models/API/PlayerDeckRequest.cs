@@ -3,13 +3,13 @@
     public class PlayerDeckRequest
     {
         public int DeckId { get; set; }
-        public string DeckName { get; set; }
+        public required string DeckName { get; set; }
         public int PlayerId { get; set; }
-        public List<PlayerDeckCardDTO> Cards { get; set; }
+        public List<CardInDeck> Cards { get; set; }
 
         public PlayerDeckRequest()
         {
-            Cards = new List<PlayerDeckCardDTO>();
+            Cards = new List<CardInDeck>();
         }
     }
 }

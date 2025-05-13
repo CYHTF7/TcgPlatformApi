@@ -2,7 +2,7 @@
 
 namespace TcgPlatformApi.Services
 {
-    public interface IPlayerBoosterService
+    public interface IBoosterService
     {
         Task<bool> AddBoosterAsync(List<PlayerBoosterRequest> requests);
         Task<List<Booster>> GetPlayerBoostersAsync(int playerId);

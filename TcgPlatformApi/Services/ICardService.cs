@@ -2,7 +2,7 @@
 
 namespace TcgPlatformApi.Services
 {
-    public interface IPlayerCardService
+    public interface ICardService
     {
         Task<bool> AddCardsAsync(List<PlayerCardRequest> requests);
         Task<List<Card>> GetPlayerCardsAsync(int playerId);

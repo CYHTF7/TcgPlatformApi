@@ -6,11 +6,11 @@ namespace TcgPlatformApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PlayerProfileController : ControllerBase
+    public class ProfileController : ControllerBase
     {
-        private readonly IPlayerProfileService _profileService;
+        private readonly IProfileService _profileService;
 
-        public PlayerProfileController(IPlayerProfileService profileService)
+        public ProfileController(IProfileService profileService)
         {
             _profileService = profileService;
         }

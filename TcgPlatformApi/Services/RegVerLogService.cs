@@ -171,7 +171,7 @@ namespace TcgPlatformApi.Services
                 throw new AppException(
                     userMessage: "Profile not found",
                     statusCode: HttpStatusCode.NotFound,
-                    logMessage: $"[RegVerLogService] Profile not found: {player.Email}"
+                    logMessage: $"[RegVerLogService] Profile not found: {request.Email}"
                 );
             }
 
@@ -217,6 +217,15 @@ namespace TcgPlatformApi.Services
             }
 
             var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            if (player == null)
+            {
+                throw new AppException(
+                    userMessage: "Profile not found",
+                    statusCode: HttpStatusCode.NotFound,
+                    logMessage: $"[RegVerLogService] Profile not found: {request.Email}"
+                );
+            }
 
             if (player.PasswordResetCode != request.PasswordResetCode)
             {

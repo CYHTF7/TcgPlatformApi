@@ -11,6 +11,6 @@ namespace TcgPlatformApi.Models
 
 
         [ForeignKey("DeckId")]
-        public Deck Deck { get; set; }
+        public Deck? Deck { get; set; }
     }
 }

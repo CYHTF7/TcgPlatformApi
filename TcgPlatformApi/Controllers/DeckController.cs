@@ -9,11 +9,11 @@ namespace TcgPlatformApi.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class PlayerDeckController : ControllerBase
+    public class DeckController : ControllerBase
     {
-        private readonly IPlayerDeckService _playerDeckService;
+        private readonly IDeckService _playerDeckService;
 
-        public PlayerDeckController(IPlayerDeckService playerDeckService)
+        public DeckController(IDeckService playerDeckService)
         {
             _playerDeckService = playerDeckService;
         }
@@ -33,7 +33,7 @@ namespace TcgPlatformApi.Controllers
                 DeckId = r.DeckId,
                 DeckName = r.DeckName,
                 PlayerId = parsedPlayerId,
-                Cards = r.Cards.Select(c => new PlayerDeckCardDTO
+                Cards = r.Cards.Select(c => new CardInDeck
                 {
                     CardId = c.CardId,
                     Quantity = c.Quantity

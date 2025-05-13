@@ -2,7 +2,7 @@
 {
     public class VerRequest
     {
-        public string EmailCode { get; set; }
-        public string Email { get; set; }
+        public required string EmailCode { get; set; }
+        public required string Email { get; set; }
     }
 }

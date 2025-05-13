@@ -9,11 +9,11 @@ namespace TcgPlatformApi.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class PlayerBoosterController : ControllerBase
+    public class BoosterController : ControllerBase
     {
-        private readonly IPlayerBoosterService _playerBoosterService;
+        private readonly IBoosterService _playerBoosterService;
 
-        public PlayerBoosterController(IPlayerBoosterService playerBoosterService)
+        public BoosterController(IBoosterService playerBoosterService)
         {
             _playerBoosterService = playerBoosterService;
         }

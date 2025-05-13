@@ -9,20 +9,20 @@ namespace TcgPlatformApi.Models
 
         [Required]
         [MaxLength(32)]
-        public string Nickname { get; set; }
+        public required string Nickname { get; set; }
 
         [Required]
         [EmailAddress]
         [MaxLength(256)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
-        public string EmailCode { get; set; }
+        public string ?EmailCode { get; set; }
 
         [Required]
         [MaxLength(256)]
-        public string PasswordHash { get; set; }
+        public string ?PasswordHash { get; set; }
 
-        public string PasswordResetCode { get; set; }
+        public string ?PasswordResetCode { get; set; }
 
         [MaxLength(512)]
         public string AvatarPath { get; set; } = "default_avatar.png";

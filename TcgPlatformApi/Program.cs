@@ -43,7 +43,7 @@ namespace TcgPlatformApi
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = jwtSettings.Issuer,
+                        ValidIssuer = jwtSettings!.Issuer,
 
                         ValidateAudience = true,
                         ValidAudience = jwtSettings.Audience,
@@ -59,12 +59,12 @@ namespace TcgPlatformApi
                 builder.Services.AddControllers();
                 builder.Services.AddEndpointsApiExplorer();
                 builder.Services.AddSwaggerGen();
-                builder.Services.AddScoped<IPlayerProfileService, PlayerProfileService>();
+                builder.Services.AddScoped<IProfileService, ProfileService>();
                 builder.Services.AddScoped<IRegVerLogService, RegVerLogService>();
                 builder.Services.AddScoped<IAvatarService, AvatarService>();
-                builder.Services.AddScoped<IPlayerBoosterService, PlayerBoosterService>();
-                builder.Services.AddScoped<IPlayerCardService, PlayerCardService>();
-                builder.Services.AddScoped<IPlayerDeckService, PlayerDeckService>();
+                builder.Services.AddScoped<IBoosterService, BoosterService>();
+                builder.Services.AddScoped<ICardService, CardService>();
+                builder.Services.AddScoped<IDeckService, DeckService>();
                 builder.Services.AddScoped<IEmailService, EmailService>();
                 builder.Services.AddScoped<ITokenService, TokenService>();
 

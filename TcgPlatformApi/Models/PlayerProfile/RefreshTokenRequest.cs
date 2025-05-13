@@ -3,6 +3,6 @@
     public class RefreshTokenRequest
     {
         public int PlayerId { get; set; }
-        public string RefreshToken { get; set; }
+        public required string RefreshToken { get; set; }
     }
 }
