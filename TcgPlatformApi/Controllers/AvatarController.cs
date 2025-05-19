@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TcgPlatformApi.Services;
-using TcgPlatformApi.Swagger;
+using TcgPlatformApi.Filters;
 
 
 namespace TcgPlatformApi.Controllers 
@@ -21,6 +21,7 @@ namespace TcgPlatformApi.Controllers
 
         [HttpPost("uploadavatar")]
         [SwaggerUploadFile]
+        [ValidateAvatarFile]
         public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
         {
             var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

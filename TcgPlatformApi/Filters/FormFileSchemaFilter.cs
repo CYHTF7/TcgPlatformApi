@@ -1,7 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace TcgPlatformApi.Swagger
+namespace TcgPlatformApi.Filters
 {
     public class FormFileSchemaFilter : ISchemaFilter
     {

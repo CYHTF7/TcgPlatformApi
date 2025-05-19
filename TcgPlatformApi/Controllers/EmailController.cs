@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TcgPlatformApi.Filters;
 using TcgPlatformApi.Services;
+using TcgPlatformApi.Models;
+
 
 namespace TcgPlatformApi.Controllers
 {
@@ -16,9 +19,10 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpPost("email")]
-        public async Task<IActionResult> SendEmailAsync(string toEmail, string code, int variant)
+        [ValidateEmailDomain]
+        public async Task<IActionResult> SendEmailAsync([FromBody] EmailRequest request)
         {
-            bool result = await _emailService.SendEmailAsync(toEmail, code, variant);
+            bool result = await _emailService.SendEmailAsync(request.ToEmail, request.Code, request.Variant);
 
             if (result)
             {

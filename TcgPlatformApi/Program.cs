@@ -7,7 +7,10 @@ using TcgPlatformApi.Settings;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using TcgPlatformApi.Swagger;
+using TcgPlatformApi.Filters;
+using Microsoft.Extensions.Options;
+using TcgPlatformApi.Smtp;
+using Microsoft.AspNetCore.Authentication;
 
 namespace TcgPlatformApi
 {
@@ -25,36 +28,45 @@ namespace TcgPlatformApi
                 //smtp
                 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
+                builder.Services.AddScoped<ISmtpClient>(provider =>
+                {
+                    var smtpSettings = provider.GetRequiredService<IOptions<SmtpSettings>>().Value;
+                    return new SmtpClientWrapper(smtpSettings);
+                });
+
                 //db string
                 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
                 //jwt
                 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-                var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+                if (!builder.Environment.IsEnvironment("OffJwt")) 
+                {
+                    var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-                builder.Services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    builder.Services.AddAuthentication(options =>
                     {
-                        ValidateIssuer = true,
-                        ValidIssuer = jwtSettings!.Issuer,
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidIssuer = jwtSettings!.Issuer,
 
-                        ValidateAudience = true,
-                        ValidAudience = jwtSettings.Audience,
+                            ValidateAudience = true,
+                            ValidAudience = jwtSettings.Audience,
 
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-                        ValidateLifetime = true, 
-                        ClockSkew = TimeSpan.Zero 
-                    };
-                });
+                            ValidateLifetime = true,
+                            ClockSkew = TimeSpan.Zero
+                        };
+                    });
+                } 
 
                 builder.Services.AddControllers();
                 builder.Services.AddEndpointsApiExplorer();
@@ -111,7 +123,7 @@ namespace TcgPlatformApi
              
                 app.UseStaticFiles();
                 app.UseHttpsRedirection();
-                app.UseAuthentication(); //jwt
+                app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseMiddleware<ExceptionMiddleware>();
                 app.MapControllers();

@@ -23,26 +23,7 @@ namespace TcgPlatformApi.Services
         }
 
         public async Task<string> UploadAvatar(IFormFile file, int playerId)
-        {
-            if (file == null || file.Length == 0)
-            {
-                throw new AppException(
-                    userMessage: "Invalid file",
-                    statusCode: HttpStatusCode.BadRequest,
-                    logMessage: $"[AvatarService] Invalid file for {playerId}"
-                );
-            }
-
-            var allovedTypes = new[] { "image/jpeg", "image/pjpeg", "image/jpg" };
-            if (!allovedTypes.Contains(file.ContentType))
-            {
-                throw new AppException(
-                    userMessage: "File must be .jpg",
-                    statusCode: HttpStatusCode.BadRequest,
-                    logMessage: $"[AvatarService] File must be .jpg: {file.FileName}"
-                );
-            }
-
+        {       
             var player = await _context.PlayerProfiles.FindAsync(playerId);
             if (player == null)
             {

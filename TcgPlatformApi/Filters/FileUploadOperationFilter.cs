@@ -2,7 +2,7 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
-namespace TcgPlatformApi.Swagger
+namespace TcgPlatformApi.Filters
 {
     public class FileUploadOperationFilter : IOperationFilter
     {

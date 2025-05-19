@@ -1,32 +1,29 @@
 ﻿using System.Net.Mail;
 using System.Net;
-using Microsoft.Extensions.Options;
-using TcgPlatformApi.Settings;
+using TcgPlatformApi.Exceptions;
+using TcgPlatformApi.Smtp;
 
 namespace TcgPlatformApi.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly SmtpSettings _smtpSettings;
+        private readonly ISmtpClient _smtpClient;
 
-        public EmailService(IOptions<SmtpSettings> smtpSettings)
+        public EmailService(ISmtpClient smtpClient)
         {
-            _smtpSettings = smtpSettings.Value;
+            _smtpClient = smtpClient;
         }
 
         public async Task<bool> SendEmailAsync(string toEmail, string code, int variant)
         {
             if (string.IsNullOrWhiteSpace(toEmail) || string.IsNullOrWhiteSpace(code))
             {
-                return false;
+                throw new AppException(
+                    userMessage: "Email was not sent",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[EmailService] Invalid email request: {variant}"
+                );
             }
-
-            var smtpClient = new SmtpClient(_smtpSettings.Host)
-            {
-                Port = _smtpSettings.Port,
-                Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password),
-                EnableSsl = _smtpSettings.EnableSsl,
-            };
 
             if (variant == 1)
             {
@@ -39,7 +36,7 @@ namespace TcgPlatformApi.Services
                 };
                 mailMessage.To.Add(toEmail);
 
-                await smtpClient.SendMailAsync(mailMessage);
+                await _smtpClient.SendMailAsync(mailMessage);
 
                 return true;
             }
@@ -55,12 +52,12 @@ namespace TcgPlatformApi.Services
                 };
                 mailMessage.To.Add(toEmail);
 
-                await smtpClient.SendMailAsync(mailMessage);
+                await _smtpClient.SendMailAsync(mailMessage);
 
                 return true;
             }
 
-            return true;
+            return false;
         }
     }
 }

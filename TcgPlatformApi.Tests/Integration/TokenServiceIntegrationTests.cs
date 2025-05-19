@@ -1,14 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using TcgPlatformApi.Data;
 using TcgPlatformApi.Exceptions;
 using TcgPlatformApi.Models;
 using TcgPlatformApi.Settings;
-using Xunit.Sdk;
 
 namespace TcgPlatformApi.Tests
 {
