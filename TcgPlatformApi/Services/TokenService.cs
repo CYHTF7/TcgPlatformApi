@@ -51,24 +51,18 @@ public class TokenService : ITokenService
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
     {
-        var player = await _context.PlayerProfiles.FirstOrDefaultAsync(u => u.Id == request.PlayerId);
+        var players = await _context.PlayerProfiles.ToListAsync();
+
+        var player = players.FirstOrDefault(p =>
+            BCrypt.Net.BCrypt.Verify(request.RefreshToken, p.RefreshTokenHash) &&
+            p.RefreshTokenExpiryTime > DateTime.UtcNow);
 
         if (player == null)
         {
             throw new AppException(
-                userMessage: "Unauthorized",
-                statusCode: HttpStatusCode.Unauthorized,
-                logMessage: $"[RegVerLogService] Unauthorized: {request.PlayerId}"
-            );
-        }
-
-        if (!BCrypt.Net.BCrypt.Verify(
-            request.RefreshToken, player.RefreshTokenHash) || player.RefreshTokenExpiryTime < DateTime.UtcNow)
-        {
-            throw new AppException(
                 userMessage: "Invalid or expired refresh token",
                 statusCode: HttpStatusCode.Unauthorized,
-                logMessage: $"[RegVerLogService] Invalid or expired refresh token: {request.PlayerId}"
+                logMessage: $"[TokenService] Invalid refresh token attempt"
             );
         }
 

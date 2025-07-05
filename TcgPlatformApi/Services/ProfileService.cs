@@ -39,9 +39,9 @@ namespace TcgPlatformApi.Services
             return newProfile;
         }
 
-        public async Task<PlayerProfile> UpdateProfile(PlayerProfileDTO updatedProfile) 
+        public async Task<PlayerProfileDTO> UpdateProfile(PlayerProfileDTO updatedProfile, int profileId) 
         {
-            var existingPlayer = await _context.PlayerProfiles.FindAsync(updatedProfile.Id);
+            var existingPlayer = await _context.PlayerProfiles.FindAsync(profileId);
 
             if (existingPlayer == null)
             {
@@ -61,7 +61,15 @@ namespace TcgPlatformApi.Services
 
             await _context.SaveChangesAsync();
 
-            return existingPlayer;
+            return new PlayerProfileDTO
+            {
+                Nickname = existingPlayer.Nickname,
+                Level = existingPlayer.Level,
+                Gold = existingPlayer.Gold,
+                Experience = existingPlayer.Experience,
+                AvatarPath = existingPlayer.AvatarPath,
+                BattlesPlayed = existingPlayer.BattlesPlayed
+            };
         }
     }
 }

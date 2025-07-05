@@ -143,22 +143,26 @@ namespace TcgPlatformApi.Services
 
             var playerProfile = new PlayerProfileDTO
             {
-                Id = player.Id,
+                //Id = player.Id,
                 Nickname = player.Nickname,
                 Level = player.Level,
                 Gold = player.Gold,
                 Experience = player.Experience,
                 AvatarPath = player.AvatarPath,
-                BattlesPlayed = player.BattlesPlayed,
-                RefreshTokenHash = refreshTokenHash,
-                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiresInDays)
+                BattlesPlayed = player.BattlesPlayed    
+            };
+
+            var authPlayerProfile = new AuthPlayerProfileDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = player.RefreshTokenExpiryTime.Value
             };
 
             return new PlayerProfileTokenLogResponse
             {
                 PlayerProfile = playerProfile,
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                AuthPlayerProfile = authPlayerProfile
             };
         } 
 

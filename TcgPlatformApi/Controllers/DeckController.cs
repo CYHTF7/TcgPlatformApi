@@ -71,7 +71,7 @@ namespace TcgPlatformApi.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getdecks")]
+        [HttpGet("getalldecks")]
         public async Task<IActionResult> GetDecksByPlayerIdAsync()
         {
             var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

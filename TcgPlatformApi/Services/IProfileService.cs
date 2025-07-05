@@ -8,6 +8,6 @@ namespace TcgPlatformApi.Services
 
         Task<PlayerProfile> CreateProfile(PlayerProfile newProfile);
 
-        Task<PlayerProfile> UpdateProfile(PlayerProfileDTO updatedProfile);
+        Task<PlayerProfileDTO> UpdateProfile(PlayerProfileDTO updatedProfile, int profileId);
     }
 }

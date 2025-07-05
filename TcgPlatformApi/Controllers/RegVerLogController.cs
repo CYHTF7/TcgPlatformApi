@@ -26,7 +26,7 @@ namespace TcgPlatformApi.Controllers
         public async Task<IActionResult> VerifyAccount([FromBody] VerRequest request)
         {
             await _regVerLogService.VerifyAccount(request);
-            return Ok();
+            return Ok("Verified.");
         }
 
         [HttpPost("login")]
