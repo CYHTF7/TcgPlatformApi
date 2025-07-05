@@ -56,7 +56,6 @@ namespace TcgPlatformApi.Tests
 
                 var request = new RefreshTokenRequest
                 {
-                    PlayerId = 1,
                     RefreshToken = oldRefreshToken
                 };
 
@@ -123,7 +122,6 @@ namespace TcgPlatformApi.Tests
 
                 var request = new RefreshTokenRequest
                 {
-                    PlayerId = 2,
                     RefreshToken = expiredRefreshToken
                 };
 
@@ -162,14 +160,13 @@ namespace TcgPlatformApi.Tests
 
                 var request = new RefreshTokenRequest
                 {
-                    PlayerId = 0123,
                     RefreshToken = refreshToken
                 };
 
                 var response = await Assert.ThrowsAsync<AppException>(() => tokenService.RefreshToken(request));
 
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-                Assert.Equal("Unauthorized", response.UserMessage);
+                Assert.Equal("Invalid or expired refresh token", response.UserMessage);
             }
         }
 
@@ -217,7 +214,6 @@ namespace TcgPlatformApi.Tests
 
                 var request = new RefreshTokenRequest
                 {
-                    PlayerId = 3,
                     RefreshToken = oneMinRefreshToken
                 };
 
