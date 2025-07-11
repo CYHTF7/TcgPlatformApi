@@ -7,7 +7,7 @@ namespace TcgPlatformApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/email")]
+    [Route("api/token")]
 
     public class TokenController : ControllerBase
     {

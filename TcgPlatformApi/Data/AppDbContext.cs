@@ -21,6 +21,7 @@ namespace TcgPlatformApi.Data
         }
     }
 }
+
 //dotnet tool install --global dotnet-ef //first
 //dotnet ef migrations add AddRegistrationFields
 //dotnet ef database update

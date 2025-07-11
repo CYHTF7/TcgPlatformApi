@@ -4,7 +4,7 @@ using TcgPlatformApi.Services;
 
 namespace TcgPlatformApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/regverlog")]
     [ApiController]
     public class RegVerLogController : ControllerBase
     {

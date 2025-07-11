@@ -7,7 +7,7 @@ using TcgPlatformApi.Services;
 namespace TcgPlatformApi.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/card")]
     [ApiController]
     public class CardController : ControllerBase
     {

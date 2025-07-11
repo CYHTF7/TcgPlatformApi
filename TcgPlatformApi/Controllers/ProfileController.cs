@@ -6,7 +6,7 @@ using TcgPlatformApi.Services;
 
 namespace TcgPlatformApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/profile")]
     [ApiController]
     public class ProfileController : ControllerBase
     {

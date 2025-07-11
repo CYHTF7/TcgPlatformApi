@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace TcgPlatformApi.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/booster")]
     [ApiController]
     public class BoosterController : ControllerBase
     {
