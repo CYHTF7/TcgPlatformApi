@@ -1,8 +1,9 @@
-# TcgPlatformApi
+![TcgPlatformApi_readme](https://github.com/user-attachments/assets/cc29a57b-2f34-42d9-ba83-e03caab4894c)
+# Description
 
-A REST API for your TCG (Trading Card Game) client. You can also use the companion client: [TcgPlatformClient](#).
+A REST API for your TCG (Trading Card Game) client. You can also use the companion client: [TcgPlatformClient](https://github.com/CYHTF7/TcgPlatformClient).
 
-## Technologies
+## 📜 Technologies
 - .NET 8
 - Entity Framework Core
 - PostgreSQL
@@ -11,7 +12,15 @@ A REST API for your TCG (Trading Card Game) client. You can also use the compani
 - xUnit
 - Moq
 
-## API Endpoints
+## ✅ Features
+
+- Avatar selection in Swagger
+- Email filter
+- Image format filter
+- Custom exception
+- Exception middleware
+
+## 🎯 API Endpoints
 
 ### Avatar
 - `POST /api/avatar/uploadavatar`
@@ -51,7 +60,7 @@ A REST API for your TCG (Trading Card Game) client. You can also use the compani
 ### Token
 - `POST /api/token/refreshtoken`
 
-## Installation & Running
+## 🚀 Installation & Running
 
 1. Clone the repository:
    ```bash
@@ -94,3 +103,4 @@ A REST API for your TCG (Trading Card Game) client. You can also use the compani
    ```net
    dotnet run --launch-profile "https"
    ```
+*←(°▽°)→*
