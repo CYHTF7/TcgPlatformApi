@@ -5,6 +5,8 @@ namespace TcgPlatformApi.Services
     public interface IDeckCardService
     {
         Task<bool> AddCardInDeckAsync(DeckCardRequest request);
-        Task<bool> RemoveCardFromDeckAsync(DeckCardRequest request);
+        Task<bool> RemoveCardFromDeckAsync(DeckCardRemoveRequest request);
+
+        Task<bool> UpdateCardsOrderAsync(DeckCardOrderRequest request);
     }
 }

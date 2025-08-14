@@ -188,7 +188,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new CardInDeck
+                    Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity
@@ -219,7 +219,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.OrderBy(c => c.Id).Select(c => new CardInDeck
+                    Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity

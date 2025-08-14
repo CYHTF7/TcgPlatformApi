@@ -9,6 +9,8 @@ namespace TcgPlatformApi.Models
         public int CardId { get; set; }
         public int Quantity { get; set; }
 
+        public int Order { get; set; }
+
 
         [ForeignKey("DeckId")]
         public Deck? Deck { get; set; }

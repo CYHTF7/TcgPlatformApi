@@ -50,7 +50,8 @@ namespace TcgPlatformApi.Services
                 {
                     DeckId = request.DeckId,
                     CardId = request.CardId,
-                    Quantity = request.Quantity
+                    Quantity = request.Quantity,
+                    Order = request.Order
                 };
                 _context.PlayerDeckCards.Add(deckCard);
             }
@@ -59,7 +60,7 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
-        public async Task<bool> RemoveCardFromDeckAsync(DeckCardRequest request)
+        public async Task<bool> RemoveCardFromDeckAsync(DeckCardRemoveRequest request)
         {
             bool deckExists = await _context.PlayerDecks.AnyAsync(p => p.Id == request.DeckId);
 
@@ -108,6 +109,30 @@ namespace TcgPlatformApi.Services
             {
                 _context.PlayerDeckCards.Remove(existingDeckCard);
             }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateCardsOrderAsync(DeckCardOrderRequest request)
+        {
+            var deckExists = await _context.PlayerDecks.AnyAsync(p => p.Id == request.DeckId);
+            if (!deckExists)
+            {
+                throw new AppException(
+                    userMessage: "Invalid DeckId",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[DeckCardService] Invalid DeckId: {request.DeckId}"
+                );
+            }
+
+            var deckCard = await _context.PlayerDeckCards
+                .Where(dc => dc.DeckId == request.DeckId)
+                .ToListAsync();
+
+            var card = deckCard.FirstOrDefault(c => c.CardId == request.CardId);
+
+            card.Order = request.Order;
 
             await _context.SaveChangesAsync();
             return true;

@@ -1,11 +1,10 @@
 ﻿namespace TcgPlatformApi.Models
 {
-    public class DeckCardRequest
+    public class DeckCardRemoveRequest
     {
         public int DeckId { get; set; }
         public int CardId { get; set; }
         public int Quantity { get; set; }
 
-        public int Order { get; set; }
     }
 }

@@ -34,7 +34,7 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpPost("removedeckcard")]
-        public async Task<IActionResult> RemoveCardsAsync([FromBody] DeckCardRequest request)
+        public async Task<IActionResult> RemoveCardsAsync([FromBody] DeckCardRemoveRequest request)
         {
             var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -46,6 +46,21 @@ namespace TcgPlatformApi.Controllers
             var result = await _deckCardService.RemoveCardFromDeckAsync(request);
 
             return Ok("Cards Removed!");
+        }
+
+        [HttpPost("updatedeckcardorder")]
+        public async Task<IActionResult> UpdateDeckCardOrderAsync([FromBody] DeckCardOrderRequest request)
+        {
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            var result = await _deckCardService.UpdateCardsOrderAsync(request);
+
+            return Ok("Card Order Updated!");
         }
     }
 }
