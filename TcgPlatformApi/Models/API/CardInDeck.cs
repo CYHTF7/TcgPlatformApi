@@ -4,5 +4,6 @@
     {
         public int CardId { get; set; }
         public int Quantity { get; set; }
+        public int Order { get; set; }
     }      
 }

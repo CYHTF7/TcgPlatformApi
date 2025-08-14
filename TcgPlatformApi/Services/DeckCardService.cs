@@ -114,25 +114,50 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
-        public async Task<bool> UpdateCardsOrderAsync(DeckCardOrderRequest request)
+        public async Task<bool> UpdateCardsOrderAsync(List<DeckCardOrderRequest> requests)
         {
-            var deckExists = await _context.PlayerDecks.AnyAsync(p => p.Id == request.DeckId);
+            if (requests == null || !requests.Any())
+            {
+                throw new AppException(
+                    userMessage: "No cards to update",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[DeckCardService] Empty request list"
+                );
+            }
+
+            var deckId = requests.First().DeckId;
+
+            var deckExists = await _context.PlayerDecks.AnyAsync(p => p.Id == deckId);
             if (!deckExists)
             {
                 throw new AppException(
                     userMessage: "Invalid DeckId",
                     statusCode: HttpStatusCode.BadRequest,
-                    logMessage: $"[DeckCardService] Invalid DeckId: {request.DeckId}"
+                    logMessage: $"[DeckCardService] Invalid DeckId: {deckId}"
                 );
             }
 
-            var deckCard = await _context.PlayerDeckCards
-                .Where(dc => dc.DeckId == request.DeckId)
+            var deckCards = await _context.PlayerDeckCards
+                .Where(dc => dc.DeckId == deckId)
                 .ToListAsync();
 
-            var card = deckCard.FirstOrDefault(c => c.CardId == request.CardId);
+            var cardsDict = deckCards.ToDictionary(c => c.CardId);
 
-            card.Order = request.Order;
+            foreach (var request in requests)
+            {
+                if (cardsDict.TryGetValue(request.CardId, out var card))
+                {
+                    card.Order = request.Order;
+                }
+                else
+                {
+                    throw new AppException(
+                        userMessage: $"Card with id {request.CardId} not found in deck",
+                        statusCode: HttpStatusCode.BadRequest,
+                        logMessage: $"[DeckCardService] Card not found in deck: {request.CardId}"
+                    );
+                }
+            }
 
             await _context.SaveChangesAsync();
             return true;

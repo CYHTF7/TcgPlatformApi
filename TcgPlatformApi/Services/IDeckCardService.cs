@@ -7,6 +7,6 @@ namespace TcgPlatformApi.Services
         Task<bool> AddCardInDeckAsync(DeckCardRequest request);
         Task<bool> RemoveCardFromDeckAsync(DeckCardRemoveRequest request);
 
-        Task<bool> UpdateCardsOrderAsync(DeckCardOrderRequest request);
+        Task<bool> UpdateCardsOrderAsync(List<DeckCardOrderRequest> request);
     }
 }

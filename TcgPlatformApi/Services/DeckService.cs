@@ -64,6 +64,8 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
+
+        //RENAME
         private async Task UpdateDeckAsync(PlayerDeckRequest request) 
         {
             var playerDeck = await _context.PlayerDecks
@@ -112,7 +114,8 @@ namespace TcgPlatformApi.Services
                     {
                         DeckId = deckId,
                         CardId = card.CardId,
-                        Quantity = card.Quantity
+                        Quantity = card.Quantity,
+                        Order = card.Order
                     };
                     _context.PlayerDeckCards.Add(newDeckCard);
                 }
@@ -191,7 +194,8 @@ namespace TcgPlatformApi.Services
                     Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
-                        Quantity = c.Quantity
+                        Quantity = c.Quantity,
+                        Order = c.Order
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
@@ -222,7 +226,8 @@ namespace TcgPlatformApi.Services
                     Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
-                        Quantity = c.Quantity
+                        Quantity = c.Quantity,
+                        Order = c.Order
                     }).ToList()
                 })
                 .ToListAsync();
