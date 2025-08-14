@@ -77,6 +77,7 @@ namespace TcgPlatformApi
                 builder.Services.AddScoped<IBoosterService, BoosterService>();
                 builder.Services.AddScoped<ICardService, CardService>();
                 builder.Services.AddScoped<IDeckService, DeckService>();
+                builder.Services.AddScoped<IDeckCardService, DeckCardService>();
                 builder.Services.AddScoped<IEmailService, EmailService>();
                 builder.Services.AddScoped<ITokenService, TokenService>();
 

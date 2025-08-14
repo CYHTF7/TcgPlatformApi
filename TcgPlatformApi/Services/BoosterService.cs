@@ -18,7 +18,6 @@ namespace TcgPlatformApi.Services
             _context = context;
         }
 
-        [HttpPost("addboosters")]
         public async Task<bool> AddBoosterAsync(List<PlayerBoosterRequest> requests)
         {
             foreach (var request in requests)
@@ -55,7 +54,6 @@ namespace TcgPlatformApi.Services
             return true;
         }
 
-        [HttpGet("getallboosters")]
         public async Task<List<Booster>> GetPlayerBoostersAsync(int playerId)
         {
             if (playerId <= 0)
@@ -74,7 +72,6 @@ namespace TcgPlatformApi.Services
             return (playerBoosters);
         }
 
-        [HttpPost("removeboosters")]
         public async Task<bool> RemoveBoosterAsync(List<PlayerBoosterRequest> requests)
         {
             foreach (var request in requests)

@@ -72,7 +72,7 @@ namespace TcgPlatformApi.Controllers
         }
 
         [HttpGet("getalldecks")]
-        public async Task<IActionResult> GetDecksByPlayerIdAsync()
+        public async Task<IActionResult> GetAllDecksByPlayerIdAsync()
         {
             var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -81,7 +81,7 @@ namespace TcgPlatformApi.Controllers
                 return BadRequest("Invalid playerId!");
             }
 
-            var result = await _playerDeckService.GetDecksByPlayerIdAsync(parsedPlayerId);
+            var result = await _playerDeckService.GetAllDecksByPlayerIdAsync(parsedPlayerId);
             return Ok(result);
         }
     }

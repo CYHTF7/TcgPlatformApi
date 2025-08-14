@@ -199,7 +199,7 @@ namespace TcgPlatformApi.Services
             return deckWithCards!;
         }
 
-        public async Task<List<PlayerDeckRequest>> GetDecksByPlayerIdAsync(int playerId)
+        public async Task<List<PlayerDeckRequest>> GetAllDecksByPlayerIdAsync(int playerId)
         {
             bool playerExists = await _context.PlayerProfiles.AnyAsync(p => p.Id == playerId);
 
@@ -219,7 +219,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
-                    Cards = d.PlayerDeckCards.Select(c => new CardInDeck
+                    Cards = d.PlayerDeckCards.OrderBy(c => c.Id).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
                         Quantity = c.Quantity
