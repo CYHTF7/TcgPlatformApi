@@ -46,12 +46,14 @@ namespace TcgPlatformApi.Services
             }
             else
             {
+                int maxOrder = await _context.PlayerDeckCards.Where(d => d.DeckId == request.DeckId).MaxAsync(d => (int?)d.Order) ?? 0;
+
                 var deckCard = new DeckCard
-                {
+                {                   
                     DeckId = request.DeckId,
                     CardId = request.CardId,
                     Quantity = request.Quantity,
-                    Order = request.Order
+                    Order = maxOrder + 1
                 };
                 _context.PlayerDeckCards.Add(deckCard);
             }

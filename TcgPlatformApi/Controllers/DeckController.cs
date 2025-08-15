@@ -33,6 +33,7 @@ namespace TcgPlatformApi.Controllers
                 DeckId = r.DeckId,
                 DeckName = r.DeckName,
                 PlayerId = parsedPlayerId,
+                Order = r.Order,
                 Cards = r.Cards.Select(c => new CardInDeck
                 {
                     CardId = c.CardId,
@@ -83,6 +84,21 @@ namespace TcgPlatformApi.Controllers
 
             var result = await _playerDeckService.GetAllDecksByPlayerIdAsync(parsedPlayerId);
             return Ok(result);
+        }
+
+        [HttpPost("updatedecksorder")]
+        public async Task<IActionResult> UpdateDeckCardOrderAsync([FromBody] List<DeckOrderRequest> requests)
+        {
+            var playerId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(playerId, out int parsedPlayerId))
+            {
+                return BadRequest("Invalid playerId!");
+            }
+
+            var result = await _playerDeckService.UpdateDecksOrderAsync(requests);
+
+            return Ok("Card Order Updated!");
         }
     }
 }

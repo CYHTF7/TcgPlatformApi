@@ -3,7 +3,8 @@
     public class DeckRequest
     {
         public int DeckId { get; set; }
-        public required string DeckName { get; set; }
+        public required string DeckName { get; set; }       
+        public int Order { get; set; }
         public List<CardInDeck> Cards { get; set; }
 
         public DeckRequest()

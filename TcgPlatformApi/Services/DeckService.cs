@@ -42,10 +42,15 @@ namespace TcgPlatformApi.Services
                 Deck playerDeck;
                 if (request.DeckId == 0)
                 {
+                    int maxOrder = await _context.PlayerDecks
+                        .Where(d => d.PlayerId == request.PlayerId)
+                        .MaxAsync(d => (int?)d.Order) ?? 0;
+
                     playerDeck = new Deck
                     {
                         DeckName = request.DeckName,
-                        PlayerId = request.PlayerId
+                        PlayerId = request.PlayerId,
+                        Order = maxOrder + 1
                     };
 
                     _context.PlayerDecks.Add(playerDeck);
@@ -191,6 +196,7 @@ namespace TcgPlatformApi.Services
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
+                    Order = d.Order,
                     Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
@@ -218,11 +224,13 @@ namespace TcgPlatformApi.Services
 
             var decks = await _context.PlayerDecks
                 .Where(d => d.PlayerId == playerId)
+                .OrderBy(c => c.Order)
                 .Select(d => new PlayerDeckRequest
                 {
                     DeckId = d.Id,
                     DeckName = d.DeckName,
                     PlayerId = d.PlayerId,
+                    Order = d.Order,
                     Cards = d.PlayerDeckCards.OrderBy(c => c.Order).Select(c => new CardInDeck
                     {
                         CardId = c.CardId,
@@ -233,6 +241,47 @@ namespace TcgPlatformApi.Services
                 .ToListAsync();
 
             return decks;
+        }
+
+        public async Task<bool> UpdateDecksOrderAsync(List<DeckOrderRequest> requests)
+        {
+            if (requests == null || !requests.Any())
+            {
+                throw new AppException(
+                    userMessage: "No decks to update",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[DeckService] Empty request list"
+                );
+            }
+
+            var deckId = requests.First().DeckId;
+
+            var deckExists = await _context.PlayerDecks.AnyAsync(p => p.Id == deckId);
+            if (!deckExists)
+            {
+                throw new AppException(
+                    userMessage: "Invalid DeckId",
+                    statusCode: HttpStatusCode.BadRequest,
+                    logMessage: $"[DeckService] Invalid DeckId: {deckId}"
+                );
+            }
+
+            var deckIds = requests.Select(r => r.DeckId).ToList();
+            var decksToUpdate = await _context.PlayerDecks
+                .Where(d => deckIds.Contains(d.Id))
+                .ToListAsync();
+
+            foreach (var request in requests)
+            {
+                var deckToUpdate = decksToUpdate.FirstOrDefault(d => d.Id == request.DeckId);
+                if (deckToUpdate != null)
+                {
+                    deckToUpdate.Order = request.Order;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

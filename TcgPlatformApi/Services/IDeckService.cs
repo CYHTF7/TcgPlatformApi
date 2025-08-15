@@ -8,5 +8,6 @@ namespace TcgPlatformApi.Services
         Task<bool> RemoveDeckAsync(List<PlayerDeckRemoveRequest> request);
         Task<PlayerDeckRequest> GetDeckAsync(int deckId);
         Task<List<PlayerDeckRequest>> GetAllDecksByPlayerIdAsync(int playerId);
+        Task<bool> UpdateDecksOrderAsync(List<DeckOrderRequest> requests);
     }
 }
